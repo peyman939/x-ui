@@ -1,20 +1,9 @@
-FROM golang:1.25-alpine AS builder
-WORKDIR /app
-ARG TARGETARCH 
-RUN apk --no-cache --update add build-base gcc wget unzip
-COPY . .
-ENV CGO_ENABLED=1
-ENV CGO_CFLAGS="-D_LARGEFILE64_SOURCE"
-RUN go build -ldflags "-w -s" -o build/x-ui main.go
-RUN ./DockerInitFiles.sh "$TARGETARCH"
+FROM ghcr.io/alireza0/x-ui:1.8.3
 
-FROM alpine
-LABEL org.opencontainers.image.authors="alireza7@gmail.com"
-ENV TZ=Asia/Tehran
-WORKDIR /app
+# تنظیم متغیرهای محیطی برای نام کاربری، پسورد و پورت
+ENV XUI_USERNAME=admin
+ENV XUI_PASSWORD=admin
+ENV XUI_PORT=8880
 
-RUN apk add ca-certificates tzdata
-
-COPY --from=builder  /app/build/ /app/
-VOLUME [ "/etc/x-ui" ]
-CMD [ "./x-ui" ]
+# باز کردن پورت جدید در کانتینر
+EXPOSE 8880
